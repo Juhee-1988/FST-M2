@@ -1,0 +1,22 @@
+-- Drop the tables
+DROP TABLE files;
+DROP TABLE dialogue_counts;
+
+-- Create the files table
+CREATE TABLE files(character STRING,dialogue STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+-- Loading data into the files table
+LOAD DATA LOCAL INPATH '/root/inputs/episodeIV_dialogues.txt' INTO TABLE files;
+LOAD DATA LOCAL INPATH '/root/inputs/episodeV_dialogues.txt' INTO TABLE files;
+LOAD DATA LOCAL INPATH '/root/inputs/episodeVI_dialogues.txt' INTO TABLE files;
+
+-- Count the number of lines
+CREATE TABLE dialogue_counts AS 
+SELECT character, dialogueCount FROM 
+(SELECT character, COUNT(1) AS dialogueCount FROM files GROUP BY character) w
+ORDER BY dialogueCount DESC;
+
+-- Export result to HDFS
+INSERT OVERWRITE DIRECTORY 'hdfs:///user/juhee/HiveProject/Activity1'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT * FROM dialogue_counts;

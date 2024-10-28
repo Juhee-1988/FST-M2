@@ -1,0 +1,14 @@
+-- Drop the tables
+DROP TABLE files;
+
+-- Create the files table
+CREATE TABLE files(character STRING,dialogue STRING) 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+TBLPROPERTIES("skip.header.line.count"="2");
+
+-- Loading data into the files table
+LOAD DATA LOCAL INPATH '/root/inputs/episodeIV_dialogues.txt' INTO TABLE files;
+
+-- Export result to HDFS
+INSERT OVERWRITE DIRECTORY 'hdfs:///user/juhee/HiveProject/Activity2'
+SELECT COUNT(*) FROM files WHERE INSTR(dialogue,'Luke')>0;
